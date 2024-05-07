@@ -1,0 +1,19 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 3em;
+}
+.board {
+  width: 50%;
+  aspect-ratio: 1/1;
+  display: grid;
+  grid-template-columns: auto auto auto;
+}
