@@ -1,7 +1,11 @@
+const playerWonModal = document.querySelector(".modal");
+const modalText = document.querySelector(".modal-text");
+const playAgainBtn = document.querySelector(".play-again-btn");
+
 function GameBoard() {
   const rows = 3;
   const columns = 3;
-  const board = [];
+  let board = [];
 
   for (let i = 0; i < rows; i++) {
     board[i] = [];
@@ -11,18 +15,51 @@ function GameBoard() {
   }
 
   const getBoard = () => board;
-  const printBoard = () => {
-    for (let i = 0; i < rows; i++) {
-      for (let j = 0; j < columns; j++) {
-        console.log("\n");
-        console.log(board[i][j].getValue());
-      }
-    }
-  };
+
   const addToBoard = (row, column, player) => {
     board[row][column].addMark(player);
   };
-  return { board, addToBoard, printBoard, getBoard };
+
+  const resetBoard = () => {
+    board = [];
+    for (let i = 0; i < rows; i++) {
+      board[i] = [];
+      for (let j = 0; j < columns; j++) {
+        board[i].push(Cell());
+      }
+    }
+  };
+
+  const isBoardFull = () => {
+    let isFull = true;
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < columns; j++) {
+        if (board[i][j].getValue() === "") {
+          isFull = false;
+        }
+      }
+    }
+    return isFull;
+  };
+
+  const isBoardCellEmpty = function (row, column) {
+    if (
+      board[row][column].getValue() === "X" ||
+      board[row][column].getValue() === "O"
+    ) {
+      return false;
+    } else {
+      return true;
+    }
+  };
+  return {
+    board,
+    addToBoard,
+    getBoard,
+    isBoardCellEmpty,
+    resetBoard,
+    isBoardFull,
+  };
 }
 function Cell() {
   let value = "";
@@ -60,21 +97,87 @@ function GameController(
   };
 
   const playRound = function (row, column) {
-    board.addToBoard(row, column, activePlayer.getMark());
+    // check to prevent override of marks
+    if (!board.isBoardCellEmpty(row, column)) {
+      return;
+    } else {
+      // add mark to board
+      board.addToBoard(row, column, activePlayer.getMark());
+      // check if anyone won
+      if (checkWin(activePlayer, board.getBoard())) {
+        // Change modals text to announce the winner
+        modalText.textContent = `${activePlayer.getName()} won!`;
+        playerWonModal.showModal();
+        return;
+      } else if (board.isBoardFull()) {
+        modalText.textContent = `It's a tie`;
+        playerWonModal.showModal();
+      } else {
+        toggleActivePlayer();
+      }
+    }
+  };
+
+  const checkWin = (player, board) => {
+    let mark = player.getMark();
+    // Check horizontal cells
+    if (
+      (board[0][0].getValue() === mark &&
+        board[0][1].getValue() === mark &&
+        board[0][2].getValue() === mark) ||
+      (board[1][0].getValue() === mark &&
+        board[1][1].getValue() === mark &&
+        board[1][2].getValue() === mark) ||
+      (board[2][0].getValue() === mark &&
+        board[2][1].getValue() === mark &&
+        board[2][2].getValue() === mark)
+    ) {
+      return true;
+    }
+    // Check vertical cells
+    if (
+      (board[0][0].getValue() === mark &&
+        board[1][0].getValue() === mark &&
+        board[2][0].getValue() === mark) ||
+      (board[0][1].getValue() === mark &&
+        board[1][1].getValue() === mark &&
+        board[2][1].getValue() === mark) ||
+      (board[0][2].getValue() === mark &&
+        board[1][2].getValue() === mark &&
+        board[2][2].getValue() === mark)
+    ) {
+      return true;
+    }
+
+    // Check diagonal cells
+
+    if (
+      (board[0][0].getValue() === mark &&
+        board[1][1].getValue() === mark &&
+        board[2][2].getValue() === mark) ||
+      (board[0][2].getValue() === mark &&
+        board[1][1].getValue() === mark &&
+        board[2][0].getValue() === mark)
+    ) {
+      return true;
+    }
   };
 
   return {
     getActivePlayer,
     playRound,
     getBoard: board.getBoard,
+    resetBoard: board.resetBoard,
     toggleActivePlayer,
+    checkWin,
   };
 }
 
 function ScreenController() {
+  playerWonModal.close();
   const boardDiv = document.querySelector(".board");
-  const game = GameController();
   const playerTurnDiv = document.querySelector(".turn");
+  const game = GameController();
 
   const updateScreen = () => {
     // clear the board
@@ -90,13 +193,37 @@ function ScreenController() {
     board.forEach((row, index) => {
       let rowIndex = index;
       row.forEach((cell, index) => {
-        const cellButton = document.createElement("button");
-        cellButton.classList.add("cell");
+        // const cellButton = document.createElement("button");
+        // cellButton.classList.add("cell");
 
-        cellButton.dataset.row = rowIndex;
-        cellButton.dataset.column = index;
-        cellButton.textContent = cell.getValue();
-        boardDiv.appendChild(cellButton);
+        const cellDiv = document.createElement("div");
+        cellDiv.classList.add("cell-div");
+
+        //cellDiv.appendChild(cellButton);
+        boardDiv.appendChild(cellDiv);
+
+        cellDiv.dataset.row = rowIndex;
+        cellDiv.dataset.column = index;
+
+        cellDiv.textContent = cell.getValue();
+
+        if (rowIndex === 0 && index === 0) {
+          cellDiv.classList.add("border-down", "border-right");
+        } else if (rowIndex === 0 && index === 1) {
+          cellDiv.classList.add("border-down", "border-right");
+        } else if (rowIndex === 0 && index === 2) {
+          cellDiv.classList.add("border-down");
+        } else if (rowIndex === 1 && index === 0) {
+          cellDiv.classList.add("border-down", "border-right");
+        } else if (rowIndex === 1 && index === 1) {
+          cellDiv.classList.add("border-down", "border-right");
+        } else if (rowIndex === 1 && index === 2) {
+          cellDiv.classList.add("border-down");
+        } else if (rowIndex === 2 && index === 0) {
+          cellDiv.classList.add("border-right");
+        } else if (rowIndex === 2 && index === 1) {
+          cellDiv.classList.add("border-right");
+        }
       });
     });
   };
@@ -104,10 +231,16 @@ function ScreenController() {
     const selectedRow = e.target.dataset.row;
     const selectedColumn = e.target.dataset.column;
     game.playRound(selectedRow, selectedColumn);
-    game.toggleActivePlayer();
     updateScreen();
   }
   boardDiv.addEventListener("click", clickHandlerBoard);
   updateScreen();
+
+  return { updateScreen, resetBoard: game.resetBoard };
 }
-ScreenController();
+const Screen = ScreenController();
+playAgainBtn.addEventListener("click", () => {
+  playerWonModal.close();
+  Screen.resetBoard();
+  Screen.updateScreen();
+});

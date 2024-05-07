@@ -4,16 +4,75 @@
   box-sizing: border-box;
 }
 body {
+  position: relative;
   height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   gap: 3em;
+  font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
+    "Lucida Sans", Arial, sans-serif;
+  background: linear-gradient(90deg, #0384ee, #b7b6b6);
+}
+.turn {
+  margin-top: 50px;
+  font-size: 2em;
+  font-weight: bold;
 }
 .board {
-  width: 50%;
+  width: 600px;
   aspect-ratio: 1/1;
   display: grid;
   grid-template-columns: auto auto auto;
+}
+.cell {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background-color: white;
+}
+.cell-div {
+  width: 200px;
+  height: 200px;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 3em;
+}
+.modal {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+  height: min-content;
+  text-align: center;
+  font-size: 2em;
+  padding: 20px;
+  border-radius: 16px;
+  border: none;
+  box-shadow: 0 10px 10px rgba(0, 0, 0, 0.5);
+}
+.hidden {
+  display: none;
+}
+.play-again-btn {
+  padding: 0.5em 1em;
+  border: none;
+  box-shadow: 0 5px 5px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+}
+.border-down {
+  border-bottom: 2px solid black;
+}
+.border-top {
+  border-top: 2px solid black;
+}
+.border-left {
+  border-left: 2px solid black;
+}
+.border-right {
+  border-right: 2px solid black;
 }
